@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- FORM VIEW - Ticket -->
+    <!-- ============================================ -->
+    <record id="view_bureaucracy_ticket_form" model="ir.ui.view">
+        <field name="name">bureaucracy.ticket.form</field>
+        <field name="model">bureaucracy.ticket</field>
+        <field name="arch" type="xml">
+            <form string="Tiket Pelaporan">
+                <header>
+                    <!-- Tombol Workflow -->
+                    <button name="action_submit" string="Ajukan Tiket"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_in_progress" string="Mulai Proses"
+                            type="object" class="btn-primary"
+                            invisible="state != 'submitted'"
+                            groups="bureaucracy_ticketing.group_ticketing_officer"/>
+                    <button name="action_resolve" string="Selesai"
+                            type="object" class="btn-success"
+                            invisible="state != 'in_progress'"
+                            groups="bureaucracy_ticketing.group_ticketing_officer"/>
+                    <button name="action_cancel" string="Batalkan"
+                            type="object" class="btn-danger"
+                            invisible="state in ('resolved', 'cancelled')"/>
+                    <button name="action_reset_draft" string="Reset ke Draft"
+                            type="object"
+                            invisible="state not in ('cancelled', 'submitted')"
+                            groups="bureaucracy_ticketing.group_ticketing_manager"/>
+                    <!-- Status Bar -->
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,in_progress,resolved"/>
+                </header>
+
+                <sheet>
+                    <!-- Ribbon untuk Overdue -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(bureaucracy_ticketing.action_ticket_comment_list)d"
+                                type="action" class="oe_stat_button" icon="fa-comments">
+                            <field name="comment_count" widget="statinfo" string="Komentar"/>
+                        </button>
+                    </div>
+
+                    <widget name="web_ribbon" title="Terlambat (Overdue)"
+                            bg_color="text-bg-danger"
+                            invisible="not is_overdue"/>
+                    <widget name="web_ribbon" title="Selesai"
+                            bg_color="text-bg-success"
+                            invisible="state != 'resolved'"/>
+
+                    <!-- Title & Priority -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <h2>
+                            <field name="title" placeholder="Judul Laporan..."
+                                   readonly="state not in ('draft',)"/>
+                        </h2>
+                    </div>
+
+                    <group>
+                        <group string="Informasi Pelapor (HR)">
+                            <field name="employee_id"
+                                   readonly="state != 'draft'"/>
+                            <field name="department_id"/>
+                            <field name="employee_job_title"/>
+                            <field name="employee_phone"/>
+                            <field name="employee_email"/>
+                        </group>
+                        <group string="Detail Laporan">
+                            <field name="category_id"
+                                   readonly="state not in ('draft', 'submitted')"/>
+                            <field name="location"
+                                   readonly="state not in ('draft', 'submitted')"/>
+                            <field name="priority" widget="priority"
+                                   readonly="state not in ('draft', 'submitted')"/>
+                            <field name="report_date"/>
+                            <field name="is_overdue" invisible="1"/>
+                            <field name="duration_days" widget="float_time"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Penugasan (PIC)">
+                            <field name="assigned_to"
+                                   readonly="state in ('resolved', 'cancelled')"/>
+                            <field name="assigned_department_id"/>
+                        </group>
+                        <group string="Tanggal Tracking">
+                            <field name="date_submitted"/>
+                            <field name="date_in_progress"/>
+                            <field name="date_resolved"/>
+                            <field name="date_cancelled"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Deskripsi Kerusakan" name="description">
+                            <field name="description"
+                                   readonly="state not in ('draft', 'submitted')"
+                                   placeholder="Jelaskan detail kerusakan yang terjadi..."/>
+                        </page>
+                        <page string="Catatan Penyelesaian" name="resolution">
+                            <field name="resolution_note"
+                                   readonly="state == 'cancelled'"
+                                   placeholder="Penjelasan apa yang dilakukan untuk menyelesaikan masalah..."/>
+                        </page>
+                        <page string="Log Penanganan" name="comments">
+                            <field name="comment_ids">
+                                <list editable="bottom">
+                                    <field name="author_id"/>
+                                    <field name="comment_type"/>
+                                    <field name="body"/>
+                                    <field name="create_date" string="Waktu"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter (Mail Thread) -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- LIST/TREE VIEW - Ticket -->
+    <!-- ============================================ -->
+    <record id="view_bureaucracy_ticket_list" model="ir.ui.view">
+        <field name="name">bureaucracy.ticket.list</field>
+        <field name="model">bureaucracy.ticket</field>
+        <field name="arch" type="xml">
+            <list string="Daftar Tiket Pelaporan"
+                  decoration-danger="is_overdue == True"
+                  decoration-success="state == 'resolved'"
+                  decoration-muted="state == 'cancelled'"
+                  default_order="create_date desc"
+                  multi_edit="1">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="category_id"/>
+                <field name="location"/>
+                <field name="priority" widget="priority"/>
+                <field name="assigned_to"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-primary="state == 'submitted'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-success="state == 'resolved'"
+                       decoration-danger="state == 'cancelled'"/>
+                <field name="report_date"/>
+                <field name="is_overdue" column_invisible="1"/>
+                <field name="duration_days" widget="float_time" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- KANBAN VIEW - Ticket -->
+    <!-- ============================================ -->
+    <record id="view_bureaucracy_ticket_kanban" model="ir.ui.view">
+        <field name="name">bureaucracy.ticket.kanban</field>
+        <field name="model">bureaucracy.ticket</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="employee_id"/>
+                <field name="category_id"/>
+                <field name="priority"/>
+                <field name="state"/>
+                <field name="assigned_to"/>
+                <field name="color"/>
+                <field name="is_overdue"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_global_click">
+                            <div class="o_kanban_record_top mb-0">
+                                <div class="o_kanban_record_headings mt-0">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <div class="o_kanban_record_top_right">
+                                    <field name="priority" widget="priority"/>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="title"/>
+                                <br/>
+                                <span class="text-muted">
+                                    <i class="fa fa-tag" title="Kategori"/> <field name="category_id"/>
+                                </span>
+                                <br/>
+                                <span t-if="record.is_overdue.raw_value" class="badge text-bg-danger">
+                                    <i class="fa fa-clock-o"/> Overdue
+                                </span>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <span class="text-muted">
+                                        <i class="fa fa-user" title="Pelapor"/> <field name="employee_id"/>
+                                    </span>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <span t-if="record.assigned_to.raw_value" class="text-muted">
+                                        <i class="fa fa-wrench" title="PIC"/> <field name="assigned_to"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- SEARCH VIEW - Ticket -->
+    <!-- ============================================ -->
+    <record id="view_bureaucracy_ticket_search" model="ir.ui.view">
+        <field name="name">bureaucracy.ticket.search</field>
+        <field name="model">bureaucracy.ticket</field>
+        <field name="arch" type="xml">
+            <search string="Cari Tiket">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="category_id"/>
+                <field name="assigned_to"/>
+                <field name="location"/>
+                <!-- Filters -->
+                <filter name="filter_draft" string="Draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_submitted" string="Diajukan"
+                        domain="[('state', '=', 'submitted')]"/>
+                <filter name="filter_in_progress" string="Sedang Diproses"
+                        domain="[('state', '=', 'in_progress')]"/>
+                <filter name="filter_resolved" string="Selesai"
+                        domain="[('state', '=', 'resolved')]"/>
+                <filter name="filter_cancelled" string="Dibatalkan"
+                        domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="filter_overdue" string="Terlambat (Overdue)"
+                        domain="[('is_overdue', '=', True)]"/>
+                <filter name="filter_high_priority" string="Prioritas Tinggi"
+                        domain="[('priority', 'in', ['2', '3'])]"/>
+                <separator/>
+                <filter name="filter_my_tickets" string="Tiket Saya"
+                        domain="[('employee_id.user_id', '=', uid)]"/>
+                <filter name="filter_assigned_to_me" string="Ditugaskan ke Saya"
+                        domain="[('assigned_to.user_id', '=', uid)]"/>
+                <!-- Group By -->
+                <group>
+                    <filter name="groupby_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="groupby_category" string="Kategori"
+                            context="{'group_by': 'category_id'}"/>
+                    <filter name="groupby_department" string="Departemen"
+                            context="{'group_by': 'department_id'}"/>
+                    <filter name="groupby_priority" string="Prioritas"
+                            context="{'group_by': 'priority'}"/>
+                    <filter name="groupby_assigned_to" string="PIC"
+                            context="{'group_by': 'assigned_to'}"/>
+                    <filter name="groupby_report_date" string="Tanggal Laporan"
+                            context="{'group_by': 'report_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- ACTION - Ticket -->
+    <!-- ============================================ -->
+    <record id="action_bureaucracy_ticket" model="ir.actions.act_window">
+        <field name="name">Tiket Pelaporan</field>
+        <field name="res_model">bureaucracy.ticket</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_bureaucracy_ticket_search"/>
+        <field name="context">{
+            'search_default_filter_my_tickets': 0,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat Tiket Pelaporan Baru
+            </p>
+            <p>
+                Laporkan kerusakan fasilitas kampus seperti proyektor rusak,
+                AC mati, WiFi bermasalah, dll.
+            </p>
+        </field>
+    </record>
+
+</odoo>

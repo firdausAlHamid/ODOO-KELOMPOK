@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bureaucracy_ticket_user,bureaucracy.ticket.user,model_bureaucracy_ticket,group_ticketing_user,1,1,1,0
+access_bureaucracy_ticket_officer,bureaucracy.ticket.officer,model_bureaucracy_ticket,group_ticketing_officer,1,1,1,0
+access_bureaucracy_ticket_manager,bureaucracy.ticket.manager,model_bureaucracy_ticket,group_ticketing_manager,1,1,1,1
+access_bureaucracy_ticket_category_user,bureaucracy.ticket.category.user,model_bureaucracy_ticket_category,group_ticketing_user,1,0,0,0
+access_bureaucracy_ticket_category_manager,bureaucracy.ticket.category.manager,model_bureaucracy_ticket_category,group_ticketing_manager,1,1,1,1
+access_bureaucracy_ticket_comment_user,bureaucracy.ticket.comment.user,model_bureaucracy_ticket_comment,group_ticketing_user,1,1,1,0
+access_bureaucracy_ticket_comment_officer,bureaucracy.ticket.comment.officer,model_bureaucracy_ticket_comment,group_ticketing_officer,1,1,1,0
+access_bureaucracy_ticket_comment_manager,bureaucracy.ticket.comment.manager,model_bureaucracy_ticket_comment,group_ticketing_manager,1,1,1,1

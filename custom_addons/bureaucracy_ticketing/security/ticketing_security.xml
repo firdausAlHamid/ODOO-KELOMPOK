@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================ -->
+    <!-- Module Category -->
+    <!-- ============================================ -->
+    <record id="res_groups_privilege_ticketing" model="res.groups.privilege">
+        <field name="name">Bureaucracy Ticketing</field>
+        <field name="description">Sistem Pelaporan Kerusakan Fasilitas</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- User Groups -->
+    <!-- ============================================ -->
+
+    <!-- Group: User (Pelapor) - bisa membuat dan melihat tiket sendiri -->
+    <record id="group_ticketing_user" model="res.groups">
+        <field name="name">User (Pelapor)</field>
+        <field name="privilege_id" ref="res_groups_privilege_ticketing"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Bisa membuat tiket dan melihat tiket milik sendiri.</field>
+    </record>
+
+    <!-- Group: Officer (Teknisi/PIC) - bisa menangani tiket -->
+    <record id="group_ticketing_officer" model="res.groups">
+        <field name="name">Officer (Teknisi)</field>
+        <field name="privilege_id" ref="res_groups_privilege_ticketing"/>
+        <field name="implied_ids" eval="[(4, ref('group_ticketing_user'))]"/>
+        <field name="comment">Bisa menangani tiket, mengubah status, dan menambahkan komentar.</field>
+    </record>
+
+    <!-- Group: Manager - full access -->
+    <record id="group_ticketing_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="res_groups_privilege_ticketing"/>
+        <field name="implied_ids" eval="[(4, ref('group_ticketing_officer'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="comment">Full akses: CRUD semua tiket, kategori, dan konfigurasi.</field>
+    </record>
+
+    <!-- ============================================ -->
+    <!-- Record Rules -->
+    <!-- ============================================ -->
+
+    <!-- User hanya bisa melihat tiket miliknya sendiri -->
+    <record id="rule_ticket_user_own" model="ir.rule">
+        <field name="name">Ticket: User hanya lihat milik sendiri</field>
+        <field name="model_id" ref="model_bureaucracy_ticket"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_ticketing_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Officer bisa lihat semua tiket -->
+    <record id="rule_ticket_officer_all" model="ir.rule">
+        <field name="name">Ticket: Officer lihat semua</field>
+        <field name="model_id" ref="model_bureaucracy_ticket"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_ticketing_officer'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Manager full access -->
+    <record id="rule_ticket_manager_all" model="ir.rule">
+        <field name="name">Ticket: Manager full access</field>
+        <field name="model_id" ref="model_bureaucracy_ticket"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_ticketing_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>

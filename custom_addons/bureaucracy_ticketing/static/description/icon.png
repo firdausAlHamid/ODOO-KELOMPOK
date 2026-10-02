@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="16" fill="#714B67"/>
+  <g fill="white">
+    <!-- Ticket icon -->
+    <rect x="28" y="30" width="72" height="68" rx="6" fill="none" stroke="white" stroke-width="4"/>
+    <line x1="28" y1="55" x2="100" y2="55" stroke="white" stroke-width="3"/>
+    <!-- Title lines -->
+    <rect x="38" y="38" width="40" height="5" rx="2"/>
+    <rect x="38" y="46" width="25" height="3" rx="1" opacity="0.6"/>
+    <!-- Body lines -->
+    <rect x="38" y="62" width="52" height="3" rx="1" opacity="0.8"/>
+    <rect x="38" y="70" width="48" height="3" rx="1" opacity="0.6"/>
+    <rect x="38" y="78" width="44" height="3" rx="1" opacity="0.6"/>
+    <!-- Checkmark -->
+    <circle cx="82" cy="42" r="8" fill="#21B573"/>
+    <polyline points="77,42 80,45 87,38" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Wrench icon bottom right -->
+    <g transform="translate(75, 82) scale(0.6)">
+      <path d="M25 5 L30 0 L35 5 L20 20 L15 15 Z" fill="white" opacity="0.8"/>
+      <circle cx="10" cy="25" r="8" fill="none" stroke="white" stroke-width="3" opacity="0.8"/>
+    </g>
+  </g>
+</svg>

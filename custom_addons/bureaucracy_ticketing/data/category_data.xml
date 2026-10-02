@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Data awal kategori tiket -->
+    <record id="category_elektronik" model="bureaucracy.ticket.category">
+        <field name="name">Elektronik</field>
+        <field name="code">ELK</field>
+        <field name="description">Peralatan elektronik: proyektor, komputer, printer, AC, dll.</field>
+        <field name="sequence">1</field>
+        <field name="color">1</field>
+    </record>
+
+    <record id="category_furniture" model="bureaucracy.ticket.category">
+        <field name="name">Furniture</field>
+        <field name="code">FRN</field>
+        <field name="description">Meja, kursi, lemari, whiteboard, dan perabotan lainnya.</field>
+        <field name="sequence">2</field>
+        <field name="color">2</field>
+    </record>
+
+    <record id="category_jaringan" model="bureaucracy.ticket.category">
+        <field name="name">Jaringan &amp; IT</field>
+        <field name="code">NET</field>
+        <field name="description">WiFi, LAN, server, akses internet, dan infrastruktur IT.</field>
+        <field name="sequence">3</field>
+        <field name="color">3</field>
+    </record>
+
+    <record id="category_infrastruktur" model="bureaucracy.ticket.category">
+        <field name="name">Infrastruktur Gedung</field>
+        <field name="code">INF</field>
+        <field name="description">Atap bocor, cat mengelupas, pintu/jendela rusak, saluran air.</field>
+        <field name="sequence">4</field>
+        <field name="color">4</field>
+    </record>
+
+    <record id="category_listrik" model="bureaucracy.ticket.category">
+        <field name="name">Listrik &amp; Pencahayaan</field>
+        <field name="code">LIS</field>
+        <field name="description">Stop kontak, lampu, instalasi listrik, genset.</field>
+        <field name="sequence">5</field>
+        <field name="color">5</field>
+    </record>
+
+    <record id="category_kebersihan" model="bureaucracy.ticket.category">
+        <field name="name">Kebersihan &amp; Sanitasi</field>
+        <field name="code">KBS</field>
+        <field name="description">Toilet, kebersihan gedung, tempat sampah, dll.</field>
+        <field name="sequence">6</field>
+        <field name="color">6</field>
+    </record>
+
+    <record id="category_keamanan" model="bureaucracy.ticket.category">
+        <field name="name">Keamanan</field>
+        <field name="code">KMN</field>
+        <field name="description">CCTV, kunci, access card, pagar, dan keamanan gedung.</field>
+        <field name="sequence">7</field>
+        <field name="color">7</field>
+    </record>
+
+    <record id="category_lainnya" model="bureaucracy.ticket.category">
+        <field name="name">Lainnya</field>
+        <field name="code">OTH</field>
+        <field name="description">Kategori lain yang tidak termasuk dalam kategori di atas.</field>
+        <field name="sequence">99</field>
+        <field name="color">8</field>
+    </record>
+</odoo>

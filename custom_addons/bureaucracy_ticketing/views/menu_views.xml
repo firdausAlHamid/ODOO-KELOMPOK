@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================ -->
+    <!-- ROOT MENU -->
+    <!-- ============================================ -->
+    <menuitem id="menu_ticketing_root"
+              name="Pelaporan Fasilitas"
+              web_icon="bureaucracy_ticketing,static/description/icon.png"
+              sequence="25"/>
+
+    <!-- ============================================ -->
+    <!-- SUBMENU: Tiket -->
+    <!-- ============================================ -->
+    <menuitem id="menu_ticketing_tickets"
+              name="Tiket"
+              parent="menu_ticketing_root"
+              sequence="10"/>
+
+    <menuitem id="menu_ticketing_ticket_list"
+              name="Semua Tiket"
+              parent="menu_ticketing_tickets"
+              action="action_bureaucracy_ticket"
+              sequence="10"/>
+
+    <!-- ============================================ -->
+    <!-- SUBMENU: Konfigurasi -->
+    <!-- ============================================ -->
+    <menuitem id="menu_ticketing_config"
+              name="Konfigurasi"
+              parent="menu_ticketing_root"
+              groups="bureaucracy_ticketing.group_ticketing_manager"
+              sequence="90"/>
+
+    <menuitem id="menu_ticketing_category"
+              name="Kategori Tiket"
+              parent="menu_ticketing_config"
+              action="action_ticket_category"
+              sequence="10"/>
+
+</odoo>
