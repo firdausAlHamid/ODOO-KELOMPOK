@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_it_hardware_user,it.hardware.user,model_it_hardware_request,base.group_user,1,1,1,0
+access_it_hardware_manager,it.hardware.manager,model_it_hardware_request,base.group_system,1,1,1,1

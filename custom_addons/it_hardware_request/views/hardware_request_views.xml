@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List / Tree View -->
+    <record id="view_it_hardware_request_tree" model="ir.ui.view">
+        <field name="name">it.hardware.request.list</field>
+        <field name="model">it.hardware.request</field>
+        <field name="arch" type="xml">
+            <list string="IT Hardware Requests">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="employee_id"/>
+                <field name="category_id"/>
+                <field name="quantity"/>
+                <field name="location"/>
+                <field name="priority" widget="priority"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'to_approve'"
+                       decoration-success="state in ('approved', 'delivered')"
+                       decoration-danger="state == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_it_hardware_request_form" model="ir.ui.view">
+        <field name="name">it.hardware.request.form</field>
+        <field name="model">it.hardware.request</field>
+        <field name="arch" type="xml">
+            <form string="IT Hardware Request">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,to_approve,approved,delivered"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <h2>
+                            <field name="title" placeholder="Judul Permintaan (contoh: Monitor Tambahan 24 inch)"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="category_id"/>
+                            <field name="quantity"/>
+                        </group>
+                        <group>
+                            <field name="priority" widget="priority"/>
+                            <field name="location" placeholder="contoh: Ruang Server Lt 2"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Deskripsi &amp; Spesifikasi" name="description">
+                            <field name="description" placeholder="Jelaskan kebutuhan spesifikasi dan alasan permintaan hardware..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_it_hardware_request_search" model="ir.ui.view">
+        <field name="name">it.hardware.request.search</field>
+        <field name="model">it.hardware.request</field>
+        <field name="arch" type="xml">
+            <search string="Cari Hardware Request">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="employee_id"/>
+                <field name="category_id"/>
+                <field name="location"/>
+                <!-- Filters -->
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_to_approve" string="Menunggu Approval" domain="[('state', '=', 'to_approve')]"/>
+                <filter name="filter_approved" string="Disetujui" domain="[('state', '=', 'approved')]"/>
+                <separator/>
+                <!-- Group By -->
+                <group>
+                    <filter name="groupby_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="groupby_employee" string="Karyawan" context="{'group_by': 'employee_id'}"/>
+                    <filter name="groupby_category" string="Kategori" context="{'group_by': 'category_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action Window -->
+    <record id="action_it_hardware_request" model="ir.actions.act_window">
+        <field name="name">IT Hardware Requests</field>
+        <field name="res_model">it.hardware.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_it_hardware_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat pengajuan IT Hardware Request pertama Anda!
+            </p>
+        </field>
+    </record>
+
+    <!-- Top Menu & Submenu -->
+    <menuitem id="menu_it_hardware_root"
+              name="IT Hardware"
+              sequence="25"
+              web_icon="it_hardware_request,static/description/icon.png"/>
+
+    <menuitem id="menu_it_hardware_requests"
+              name="Hardware Requests"
+              parent="menu_it_hardware_root"
+              action="action_it_hardware_request"
+              sequence="10"/>
+</odoo>
