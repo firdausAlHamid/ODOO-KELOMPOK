@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package ticketing;
+
+// =============================================
+// Pesan (Messages)
+// =============================================
+
+// Request untuk membuat tiket baru
+message CreateTicketRequest {
+  string title       = 1;  // Judul laporan (wajib)
+  string description = 2;  // Deskripsi kerusakan
+  int32  category_id = 3;  // ID kategori (wajib)
+  string location    = 4;  // Lokasi kerusakan (wajib)
+  string priority    = 5;  // 0=Rendah, 1=Sedang, 2=Tinggi, 3=Sangat Mendesak
+  int32  employee_id = 6;  // ID karyawan pelapor
+}
+
+// Response setelah membuat tiket
+message CreateTicketResponse {
+  bool   success    = 1;
+  string message    = 2;
+  int32  ticket_id  = 3;
+  string ticket_name = 4;  // Nomor tiket otomatis (misal: TICK/2024/001)
+}
+
+// Request untuk mengambil satu tiket
+message GetTicketRequest {
+  int32 id = 1;
+}
+
+// Request untuk mengambil daftar tiket
+message ListTicketsRequest {
+  string state    = 1;  // Filter by state (kosong = semua)
+  int32  limit    = 2;  // Jumlah maksimum (0 = tidak dibatasi)
+  int32  offset   = 3;  // Offset untuk paginasi
+}
+
+// Data satu tiket
+message TicketData {
+  int32  id               = 1;
+  string name             = 2;   // Nomor tiket
+  string title            = 3;
+  string description      = 4;
+  string location         = 5;
+  string priority         = 6;
+  string priority_label   = 7;
+  string state            = 8;
+  string state_label      = 9;
+  string category_name    = 10;
+  string employee_name    = 11;
+  string department_name  = 12;
+  string report_date      = 13;
+}
+
+// Response daftar tiket
+message ListTicketsResponse {
+  repeated TicketData tickets = 1;
+  int32               total   = 2;
+}
+
+// Request daftar kategori
+message ListCategoriesRequest {}
+
+// Data satu kategori
+message CategoryData {
+  int32  id          = 1;
+  string name        = 2;
+  string code        = 3;
+  string description = 4;
+  int32  ticket_count = 5;
+}
+
+// Response daftar kategori
+message ListCategoriesResponse {
+  repeated CategoryData categories = 1;
+}
+
+// =============================================
+// Service
+// =============================================
+
+service TicketService {
+  // Buat tiket baru (CREATE / POST)
+  rpc CreateTicket (CreateTicketRequest)   returns (CreateTicketResponse);
+
+  // Ambil satu tiket (READ / GET)
+  rpc GetTicket    (GetTicketRequest)      returns (TicketData);
+
+  // Ambil daftar tiket (READ / GET)
+  rpc ListTickets  (ListTicketsRequest)    returns (ListTicketsResponse);
+
+  // Ambil daftar kategori (READ / GET)
+  rpc ListCategories (ListCategoriesRequest) returns (ListCategoriesResponse);
+}
