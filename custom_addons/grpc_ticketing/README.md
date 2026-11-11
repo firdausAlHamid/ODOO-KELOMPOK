@@ -1,102 +1,118 @@
-# gRPC Ticketing - Integrasi gRPC pada Odoo
+# gRPC Ticketing — Integrasi gRPC pada Odoo
 
-Implementasi dua pendekatan arsitektur gRPC untuk berinteraksi dengan sistem tiket birokrasi Odoo.
+Implementasi dua pendekatan gRPC untuk berinteraksi dengan sistem tiket birokrasi Odoo.
+Mendukung operasi **CRUD lengkap**: Create, Read, Update, Delete.
 
 ---
 
-## Struktur Direktori
+## Struktur File
 
 ```
 custom_addons/grpc_ticketing/
-├── ticket.proto           ← definisi service & message gRPC
-├── ticket_pb2.py          ← generated: message classes (protobuf)
-├── ticket_pb2_grpc.py     ← generated: service stub & servicer
-├── middleware_server.py   ← Pendekatan 1: gRPC → XML-RPC → Odoo
-├── native_server.py       ← Pendekatan 2: gRPC + Odoo ORM langsung
+├── ticket.proto           ← definisi operasi gRPC (kontrak antara client dan server)
+├── ticket_pb2.py          ← generated otomatis dari proto (jangan diedit manual)
+├── ticket_pb2_grpc.py     ← generated otomatis dari proto (jangan diedit manual)
+├── middleware_server.py   ← Case 1: gRPC server yang nerusin request ke Odoo via XML-RPC
+├── native_server.py       ← Case 2: gRPC server yang akses ORM Odoo langsung
 ├── client.py              ← test client untuk kedua server
+├── narration_script.md    ← naskah narasi video demo
 └── README.md
 ```
 
 ---
 
-## Urutan Menjalankan (PENTING — ikuti urutan ini)
+## Operasi yang Tersedia (CRUD)
 
-### Step 1 — Jalankan Odoo dulu (wajib, selalu pertama)
+| Operasi  | RPC              | Keterangan                                                        |
+|----------|------------------|-------------------------------------------------------------------|
+| Create   | `CreateTicket`   | Buat tiket pelaporan baru                                         |
+| Read     | `ListTickets`    | Ambil daftar semua tiket (bisa filter by status)                  |
+| Read     | `GetTicket`      | Ambil detail satu tiket by ID                                     |
+| Read     | `ListCategories` | Ambil daftar kategori tiket                                       |
+| Update   | `UpdateTicket`   | Ubah status tiket: `submit` → `in_progress` → `resolve` / `cancel` |
+| Delete   | `DeleteTicket`   | Hapus tiket (hanya bisa kalau status masih `draft` atau `cancelled`) |
 
-Buka terminal baru, jalankan dari root repo:
+---
+
+## Urutan Menjalankan (ikuti step ini)
+
+### Step 1 — Jalankan Odoo (selalu pertama, wajib)
 
 ```bash
 cd E:\ODOO-KELOMPOK
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe odoo-bin --config odoo.conf
 ```
 
-Tunggu sampai muncul baris ini di terminal Odoo:
+Tunggu sampai terminal Odoo menampilkan:
 ```
 INFO odoo19 odoo.service.server: HTTP service (werkzeug) running on 0.0.0.0:8069
 ```
-Kalau sudah muncul baris itu, Odoo siap. Jangan tutup terminal ini.
+Jangan tutup terminal ini.
 
 ---
 
-### Step 2 — Jalankan Middleware Server (port 50051)
+### Step 2 — Jalankan Middleware Server (Case 1, port 50051)
 
-Buka terminal **baru** (jangan tutup Odoo), jalankan:
+Buka terminal baru:
 
 ```bash
 cd E:\ODOO-KELOMPOK\custom_addons\grpc_ticketing
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe middleware_server.py
 ```
 
-Kalau berhasil, terminal ini akan menampilkan:
+Kalau berhasil, terminal menampilkan:
 ```
-2026-xx-xx [MIDDLEWARE] INFO Berhasil login Odoo sebagai uid=2
-2026-xx-xx [MIDDLEWARE] INFO Middleware gRPC server berjalan di port 50051
-2026-xx-xx [MIDDLEWARE] INFO Meneruskan request ke Odoo XML-RPC: http://localhost:8069
+[MIDDLEWARE] INFO Berhasil login Odoo sebagai uid=2
+[MIDDLEWARE] INFO Middleware gRPC server berjalan di port 50051
+[MIDDLEWARE] INFO Meneruskan request ke Odoo XML-RPC: http://localhost:8069
 ```
-Artinya server middleware sudah aktif dan siap menerima request gRPC.
 Jangan tutup terminal ini.
 
 ---
 
-### Step 3 — Jalankan Native Server (port 50052)
+### Step 3 — Jalankan Native Server (Case 2, port 50052)
 
-Buka terminal **baru lagi**, jalankan dari root repo:
+Buka terminal baru lagi, **jalankan dari root repo**:
 
 ```bash
 cd E:\ODOO-KELOMPOK
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe custom_addons/grpc_ticketing/native_server.py
 ```
 
-Kalau berhasil, terminal ini akan menampilkan:
+Kalau berhasil:
 ```
-2026-xx-xx [NATIVE] INFO Bootstrap Odoo dari config: E:\ODOO-KELOMPOK\odoo.conf
-2026-xx-xx [NATIVE] INFO Bootstrap OK. Modul 'bureaucracy_ticketing' terpasang: True
-2026-xx-xx [NATIVE] INFO Native gRPC server berjalan di port 50052
+[NATIVE] INFO Bootstrap OK — modul bureaucracy_ticketing terpasang: True
+[NATIVE] INFO Native gRPC server AKTIF di port 50052
+[NATIVE] INFO Database: odoo19 | Mode: ORM langsung (tanpa XML-RPC)
 ```
 Jangan tutup terminal ini.
 
 ---
 
-### Step 4 — Jalankan Client (untuk testing)
+### Step 4 — Jalankan Client (testing)
 
-Buka terminal **baru lagi**, jalankan:
+Buka terminal baru, arahkan ke salah satu server:
 
 ```bash
 cd E:\ODOO-KELOMPOK\custom_addons\grpc_ticketing
 
-# Test ke middleware (port 50051)
-E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py
+# Demo CRUD lengkap ke Middleware (Case 1)
+E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --target localhost:50051
 
-# Test ke native (port 50052)
+# Demo CRUD lengkap ke Native (Case 2)
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --target localhost:50052
 ```
 
-Client akan otomatis:
-1. Baca daftar kategori (READ)
-2. Baca daftar tiket (READ)
-3. Buat tiket baru (CREATE)
-4. Baca tiket yang baru dibuat untuk konfirmasi (READ)
-5. Baca daftar tiket lagi — tiket baru harus muncul (READ)
+Demo otomatis menjalankan urutan berikut:
+1. **Read** — list kategori dan tiket yang ada
+2. **Create** — buat tiket baru, nomor otomatis muncul
+3. **Read** — baca tiket yang baru dibuat untuk konfirmasi
+4. **Update** — submit tiket (Draft → Diajukan)
+5. **Update** — proses tiket (Diajukan → Sedang Diproses)
+6. **Update** — selesaikan tiket (Sedang Diproses → Selesai)
+7. **Read** — lihat tiket setelah semua update
+8. **Create + Delete** — buat tiket baru lalu hapus (demo Delete)
+9. **Read** — list tiket akhir
 
 ---
 
@@ -105,35 +121,36 @@ Client akan otomatis:
 ```bash
 cd E:\ODOO-KELOMPOK\custom_addons\grpc_ticketing
 
-# Hanya list kategori
-E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --categories
-
 # Hanya list tiket
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --list
 
-# Ambil tiket by ID
-E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --get 1
+# Hanya list kategori
+E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --categories
 
-# Buat tiket dengan parameter: "judul" category_id lokasi priority
-E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --create "AC Rusak" 2 "Gedung B" 2
+# Ambil detail tiket by ID
+E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --get 5
+
+# Buat tiket baru: "judul" category_id lokasi priority
+E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --create "AC Rusak" 1 "Gedung B Ruang 3" 2
+
+# Update status tiket: ID action
+E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --update 5 submit
+E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --update 5 in_progress
+E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --update 5 resolve
+E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --update 5 cancel
+
+# Hapus tiket (hanya draft/cancelled)
+E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --delete 5
 ```
 
 ---
 
-## Regenerate Stubs (jika ticket.proto diubah)
+## Perbedaan Dua Pendekatan
 
-```bash
-cd E:\ODOO-KELOMPOK\custom_addons\grpc_ticketing
-E:\ODOO-KELOMPOK\venv\Scripts\python.exe -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. ticket.proto
-```
-
----
-
-## Perbedaan Kedua Pendekatan
-
-| Aspek                 | Middleware (port 50051)        | Native (port 50052)              |
-|-----------------------|-------------------------------|----------------------------------|
-| Cara akses Odoo       | Lewat HTTP XML-RPC (port 8069) | Langsung ke database (ORM)       |
-| Butuh Odoo HTTP jalan | Ya, wajib                      | Tidak wajib                      |
-| Kecepatan             | Sedikit lebih lambat           | Lebih cepat (direct DB)          |
-| Kompleksitas          | Lebih simpel                   | Perlu bootstrap Odoo environment |
+| Aspek                   | Case 1: Middleware (port 50051)       | Case 2: Native (port 50052)              |
+|-------------------------|---------------------------------------|------------------------------------------|
+| Cara akses Odoo         | Lewat HTTP + XML-RPC (port 8069)      | Langsung ke database via ORM             |
+| Butuh Odoo HTTP jalan   | Ya, wajib                             | Tidak wajib (tapi PostgreSQL harus jalan)|
+| Lokasi server           | Bisa di mesin berbeda dengan Odoo     | Harus di mesin yang sama dengan Odoo     |
+| Kecepatan               | Sedikit lebih lambat (lewat HTTP)     | Lebih cepat (direct DB)                  |
+| Bisa panggil fitur Odoo | Terbatas                              | Penuh — bisa akses semua method Odoo     |

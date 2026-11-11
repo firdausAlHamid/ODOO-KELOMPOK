@@ -2,160 +2,179 @@
 
 ---
 
-## PERSIAPAN SEBELUM REKAM
+## PERSIAPAN SEBELUM REKAM ( checklist )
 
-- [ ] Odoo sudah jalan (`python odoo-bin --config odoo.conf`), bisa dibuka di `http://localhost:8069`
-- [ ] Sudah login sebagai admin, modul Bureaucracy Ticketing sudah terinstall dan ada datanya (minimal 1 kategori, 1 tiket)
-- [ ] Buka 2 terminal ekstra: satu untuk middleware server, satu untuk native server
-- [ ] Terminal ketiga untuk client
-
----
-
-## NASKAH (ngomong santai aja, ini cuma panduan)
-
----
-
-### BAGIAN 1 — INTRO (0:00 – 0:40)
-
-> "Halo, di video ini gua mau nunjukkin hasil tugas praktik integrasi gRPC pada Odoo.
->
-> Jadi, gRPC itu basically adalah cara dua program berkomunikasi satu sama lain lewat jaringan.
-> Mirip kayak kita kirim pesan ke server, tapi lebih cepat dan lebih terstruktur dibanding REST API biasa.
->
-> Di tugas ini, gua diminta bikin dua cara berbeda untuk 'ngobrol' dengan database Odoo lewat gRPC:
->
-> Yang pertama namanya **Middleware** — jadi ada server perantara di tengah-tengah.
-> Client kirim request ke server gRPC, server itu nerjemahin dan nerusin ke Odoo.
->
-> Yang kedua namanya **Native** atau Built-in — servernya langsung nyambung ke database Odoo,
-> tanpa perantara tambahan.
->
-> Gua udah punya custom module di Odoo namanya Bureaucracy Ticketing — sistem tiket pelaporan fasilitas.
-> Nah, dua server gRPC ini yang bakal kita gunain buat baca dan bikin tiket di module itu."
-
-*(sambil ngomong, tunjukin tampilan Odoo di browser — list tiket yang udah ada)*
+- [ ] Odoo sudah jalan di terminal terpisah:
+      `E:\ODOO-KELOMPOK\venv\Scripts\python.exe odoo-bin --config odoo.conf`
+- [ ] Sudah login sebagai **admin** di `http://localhost:8069`, modul **Bureaucracy Ticketing** sudah terinstall
+- [ ] Ada minimal 1 employee di HR dan beberapa tiket existing di Odoo (biar list-nya gak kosong)
+- [ ] Siapkan **3 terminal** PowerShell:
+  - Terminal 1 → untuk Middleware server
+  - Terminal 2 → untuk Native server
+  - Terminal 3 → untuk Client (testing)
+- [ ] Buka browser Odoo di tab lain untuk verifikasi data masuk
 
 ---
 
-### BAGIAN 2 — TUNJUKIN STRUKTUR SEBENTAR (0:40 – 1:10)
-
-*(buka folder `custom_addons/grpc_ticketing/` di file explorer atau terminal)*
-
-> "Ini file-file yang gua bikin untuk tugas ini.
->
-> Ada `ticket.proto` — ini semacam 'kontrak' yang mendefinisikan operasi apa aja yang bisa dilakukan:
-> bisa Create tiket baru, bisa Read / ambil data tiket.
->
-> Ada `middleware_server.py` untuk pendekatan pertama,
-> `native_server.py` untuk pendekatan kedua,
-> dan `client.py` yang bakal gua pakai buat ngetes kedua server itu.
->
-> Dua file `ticket_pb2.py` itu hasil generate otomatis dari file proto tadi — isinya kode yang dibutuhkan biar Python bisa 'ngerti' format gRPC-nya."
+## NASKAH (ngomong santai, ini cuma panduan — boleh improvisasi)
 
 ---
 
-### BAGIAN 3 — DEMO MIDDLEWARE (1:10 – 2:10)
+### BAGIAN 1 — INTRO (0:00 – 0:35)
 
-*(buka terminal, jalankan middleware server)*
+*(tampilkan tampilan Odoo di browser, terlihat list tiket)*
 
-```bash
+> "Halo, di video ini gua mau nunjukkin hasil tugas praktik Integrasi gRPC pada Odoo.
+>
+> Sebelumnya, gua udah punya custom module di Odoo namanya **Bureaucracy Ticketing** —
+> sistemnya buat pelaporan kerusakan fasilitas kampus, kayak proyektor rusak, AC mati, dan sebagainya.
+> Ini yang keliatan di Odoo sekarang.
+>
+> Nah, di tugas ini gua diminta bikin integrasi menggunakan **gRPC**.
+> Gampangnya, gRPC itu cara dua program saling 'ngobrol' lewat jaringan — mirip API,
+> tapi lebih cepat dan lebih terstruktur.
+>
+> Gua bikin dua pendekatan berbeda:
+> satu sebagai **Middleware** — ada server perantara di luar Odoo,
+> satu lagi **Native** — servernya langsung nyambung ke dalam Odoo.
+>
+> Dan untuk tiap pendekatan, gua bakal nunjukkin semua operasi **CRUD** —
+> Create, Read, Update, dan Delete — semuanya lewat gRPC."
+
+---
+
+### BAGIAN 2 — TUNJUKIN FILE SEBENTAR (0:35 – 1:00)
+
+*(buka folder `custom_addons/grpc_ticketing/` di File Explorer atau terminal)*
+
+> "Ini file-file yang gua bikin.
+>
+> `ticket.proto` itu ibarat 'daftar menu' — dia yang nentuin operasi apa aja yang bisa dipakai:
+> ada CreateTicket, GetTicket, ListTickets, UpdateTicket, sama DeleteTicket.
+>
+> `middleware_server.py` untuk Case 1 — server yang jadi perantara.
+> `native_server.py` untuk Case 2 — server yang langsung nyambung ke Odoo.
+> `client.py` untuk testing kedua server tadi.
+>
+> File `ticket_pb2.py` itu generate otomatis dari file proto — gak perlu diotak-atik."
+
+---
+
+### BAGIAN 3 — CASE 1: MIDDLEWARE (1:00 – 2:10)
+
+#### Jalankan server middleware
+
+*(buka Terminal 1, ketik perintah ini)*
+
+```
 cd E:\ODOO-KELOMPOK\custom_addons\grpc_ticketing
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe middleware_server.py
 ```
 
-> "Ini gua jalanin server pertama — Middleware.
+> "Ini Case 1 — Middleware. Gua jalanin servernya dulu.
 >
-> Cara kerjanya: kalau ada yang kirim request ke server ini,
-> dia bakal neneruskan permintaan itu ke Odoo lewat yang namanya XML-RPC —
-> protokol standar yang udah ada di Odoo dari dulu.
+> Lihat di terminal — muncul tulisan:
+> *'Berhasil login Odoo sebagai uid=2'* dan *'Middleware gRPC server berjalan di port 50051'*.
+> Artinya server ini udah konek ke Odoo dan siap nerima request.
 >
-> Jadi kayak ada 'orang tengah' yang nerjemahin request gRPC ke bahasa yang dimengerti Odoo.
->
-> Nah liat di terminal — muncul tulisan 'Berhasil login Odoo sebagai uid=2'
-> dan 'Middleware gRPC server berjalan di port 50051'.
-> Itu tandanya server middleware udah aktif dan siap nerima request."
+> Cara kerjanya gini: client kirim request ke server gRPC ini, lalu server ini yang 'nerjemahin'
+> dan nerusin ke Odoo lewat protokol namanya XML-RPC. Jadi ada orang tengah di sini."
 
-*(buka terminal lain, jalankan client ke middleware)*
+#### Jalankan client ke middleware
 
-```bash
+*(buka Terminal 3, ketik perintah ini)*
+
+```
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --target localhost:50051
 ```
 
-> "Sekarang gua jalanin client-nya ke server middleware.
+> "Sekarang gua jalanin client-nya ke Middleware.
 >
-> Client ini otomatis bakal lakuin beberapa hal:
-> pertama dia baca daftar kategori — ini operasi Read.
-> Terus dia baca daftar tiket yang ada — Read lagi.
-> Terus dia **bikin tiket baru** — ini operasi Create.
-> Dan terakhir dia baca lagi tiket yang baru dibuat buat konfirmasi."
+> Di output terminal keliatan urutannya:
+> pertama **Read** — baca kategori dan daftar tiket yang ada.
+> Terus **Create** — bikin tiket baru, nomornya otomatis keluar, misalnya TKT/2026/xxxx.
+> Lanjut **Update** tiga kali — statusnya berubah: Draft jadi Diajukan, terus Sedang Diproses, terus Selesai.
+> Terakhir **Delete** — satu tiket berhasil dihapus."
 
-*(tunggu output client selesai, tunjukin nomor tiket baru yang muncul)*
+*(tunggu sampai output 'DEMO CRUD SELESAI' muncul)*
 
-> "Nah keliatan tuh, tiket baru berhasil dibuat. Nomor tiketnya muncul di sini."
+> "Semua operasi CRUD berhasil dijalankan via Middleware."
 
-*(buka browser Odoo, refresh halaman list tiket)*
+#### Verifikasi di Odoo
 
-> "Dan kalau gua cek langsung di Odoo... tiket yang tadi dibuat via gRPC **sudah masuk ke database**.
-> Ini buktiin bahwa operasi Create dan Read lewat Middleware berhasil."
+*(buka browser, refresh halaman tiket di Odoo)*
+
+> "Sekarang gua cek di Odoo.
+> Tiket yang tadi dibuat via gRPC **sudah masuk ke database** dan statusnya Selesai.
+> Ini buktiin Create, Read, Update, Delete lewat Middleware semuanya berhasil."
 
 ---
 
-### BAGIAN 4 — DEMO NATIVE (2:10 – 3:10)
+### BAGIAN 4 — CASE 2: NATIVE (2:10 – 3:10)
 
-*(buka terminal baru, jalankan native server dari root repo)*
+#### Jalankan server native
 
-```bash
+*(buka Terminal 2, ketik perintah ini)*
+
+```
 cd E:\ODOO-KELOMPOK
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe custom_addons/grpc_ticketing/native_server.py
 ```
 
-> "Sekarang server kedua — Native.
+> "Ini Case 2 — Native. Bedanya dengan Middleware:
+> kalau tadi ada 'orang tengah' yang nerusin request ke Odoo lewat HTTP,
+> server ini langsung masuk ke dalam Odoo-nya tanpa perantara sama sekali.
 >
-> Bedanya sama yang tadi: kalau Middleware itu 'nitip' ke Odoo lewat HTTP,
-> server Native ini langsung masuk ke dalam Odoo-nya.
->
-> Dia baca file konfigurasi Odoo, lalu akses database secara langsung
-> lewat yang namanya ORM — Object Relational Mapper, cara Odoo ngobrol sama database.
->
-> Jadi lebih langsung, lebih efisien, karena gak ada 'orang tengah' lagi.
->
-> Di terminal kelihatan tulisan 'Bootstrap OK' dan 'Native gRPC server berjalan di port 50052' —
-> server udah aktif."
+> Lihat di terminal — muncul *'Bootstrap OK'* dan *'Native gRPC server AKTIF di port 50052'*.
+> Bootstrap itu prosesnya dia baca file konfigurasi Odoo, terus akses databasenya langsung.
+> Jadi lebih efisien."
 
-*(jalankan client ke native server)*
+#### Jalankan client ke native
 
-```bash
+*(di Terminal 3, ketik perintah ini)*
+
+```
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --target localhost:50052
 ```
 
-> "Sama seperti tadi, client lakuin Read dan Create.
-> Bedanya sekarang request-nya diproses langsung oleh ORM Odoo, bukan diteruskan via HTTP."
+> "Sama seperti tadi — gua jalanin client yang sama, tapi sekarang diarahin ke Native server.
+>
+> Alurnya persis sama: Read, Create, Update status tiga kali, lalu Delete.
+> Bedanya sekarang semua itu diproses **langsung oleh Odoo** di dalam prosesnya sendiri,
+> tanpa lewat HTTP."
 
-*(tunggu output, tunjukin tiket baru terbuat, cek di browser Odoo)*
+*(tunggu output 'DEMO CRUD SELESAI' muncul)*
 
-> "Dan di Odoo, tiket dari Native server juga masuk. Dua-duanya berhasil."
+#### Verifikasi di Odoo
+
+*(refresh browser Odoo)*
+
+> "Dan di Odoo, tiket dari Native server juga masuk dan statusnya juga berubah.
+> Dua-duanya berhasil — CRUD penuh via gRPC, dua pendekatan berbeda."
 
 ---
 
 ### BAGIAN 5 — PENUTUP (3:10 – 3:30)
 
-> "Jadi kesimpulannya, dua pendekatan ini sama-sama bisa dipakai untuk integrasi gRPC dengan Odoo.
+> "Jadi kesimpulannya:
 >
-> Middleware lebih fleksibel — bisa jalan di mesin yang beda dengan Odoo-nya,
-> cocok buat sistem yang lebih besar dan terdistribusi.
+> **Case 1 Middleware** — ada server gRPC yang berdiri sendiri di luar Odoo.
+> Dia nerima request dari client, terus nerusin ke Odoo lewat protokol standar.
+> Cocok kalau sistemnya tersebar di banyak tempat.
 >
-> Native lebih simpel dan langsung — akses langsung ke database, lebih cepat,
-> tapi harus jalan di tempat yang sama dengan Odoo.
+> **Case 2 Native** — server gRPC langsung hidup di dalam Odoo.
+> Akses databasenya langsung, lebih cepat, dan bisa manggil fitur-fitur Odoo secara penuh.
 >
-> Keduanya sudah terbukti bisa Create dan Read data tiket di database Odoo.
+> Dua-duanya udah terbukti bisa Create, Read, Update, dan Delete data tiket di Odoo.
 > Sekian dari gua, terima kasih."
 
 ---
 
 ## TIPS BIAR LANCAR
 
-- Gak perlu hafal kata per kata — ini cuma panduan. Ngomong natural aja.
-- Kalau salah ngomong, diem 2 detik terus lanjut, nanti bisa di-cut di edit.
-- Pastiin font terminal gede (klik kanan terminal → Properties → Font → ukuran 18-20).
-- Urutan yang harus jalan sebelum rekam: **Odoo dulu** → baru middleware server → baru native server.
-- Total target 3-4 menit, kalau kebanyakan potong aja bagian struktur file (Bagian 2).
+- Gak perlu hafal kata per kata — ngomong natural aja, naskah ini cuma panduan arah.
+- Kalau salah ngomong, diam 2 detik, lanjut lagi — nanti bisa di-cut pas edit.
+- Pastiin font terminal keliatan besar: klik kanan titlebar terminal → Properties → Font → pilih ukuran 18 atau 20.
+- **Urutan wajib sebelum rekam**: Odoo harus jalan dulu → baru Middleware server → baru Native server.
+- Kalau mau lebih singkat, skip Bagian 2 (tunjuk file) — langsung lompat ke demo.
+- Kalau waktu masih kurang dari 3 menit, perlambat sedikit pas tunjuk output terminal — biar penonton sempat baca.
