@@ -7,7 +7,7 @@ Implementasi dua pendekatan arsitektur gRPC untuk berinteraksi dengan sistem tik
 ## Struktur Direktori
 
 ```
-grpc_ticketing/
+custom_addons/grpc_ticketing/
 ├── ticket.proto           ← definisi service & message gRPC
 ├── ticket_pb2.py          ← generated: message classes (protobuf)
 ├── ticket_pb2_grpc.py     ← generated: service stub & servicer
@@ -28,12 +28,13 @@ gRPC Client  ──►  middleware_server.py  ──►  Odoo XML-RPC (8069)
 Server Python standalone yang bertindak sebagai API Gateway.
 Setiap request gRPC diteruskan ke Odoo melalui `xmlrpc.client`.
 
-**Jalankan (dari direktori `grpc_ticketing/`):**
+**Jalankan (dari direktori `custom_addons/grpc_ticketing/`):**
 
 ```bash
 # Aktifkan venv Odoo
 E:\ODOO-KELOMPOK\venv\Scripts\activate
 
+cd E:\ODOO-KELOMPOK\custom_addons\grpc_ticketing
 python middleware_server.py
 ```
 
@@ -63,7 +64,7 @@ E:\ODOO-KELOMPOK\venv\Scripts\activate
 
 # Pastikan working directory adalah root repo agar odoo.conf terbaca
 cd E:\ODOO-KELOMPOK
-python grpc_ticketing/native_server.py
+python custom_addons/grpc_ticketing/native_server.py
 ```
 
 Log sukses:
@@ -77,7 +78,7 @@ Log sukses:
 ## Test Client
 
 ```bash
-cd E:\ODOO-KELOMPOK\grpc_ticketing
+cd E:\ODOO-KELOMPOK\custom_addons\grpc_ticketing
 E:\ODOO-KELOMPOK\venv\Scripts\activate
 
 # Demo penuh ke middleware (default)
@@ -98,7 +99,7 @@ python client.py --create "AC Rusak" 2 "Gedung B" 2  # create tiket
 ## Regenerate Stubs (jika .proto diubah)
 
 ```bash
-cd E:\ODOO-KELOMPOK\grpc_ticketing
+cd E:\ODOO-KELOMPOK\custom_addons\grpc_ticketing
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe -m grpc_tools.protoc \
   -I. --python_out=. --grpc_python_out=. ticket.proto
 ```

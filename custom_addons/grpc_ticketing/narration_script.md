@@ -10,9 +10,9 @@ Tugas Praktik: Integrasi gRPC pada Odoo — Pendekatan Middleware & Native (Buil
 - [ ] Pastikan ada minimal **1 kategori** tiket dan **1 employee** (HR) di Odoo (buat manual lewat UI kalau belum).
 - [ ] venv aktif: `E:\ODOO-KELOMPOK\venv\Scripts\activate`
 - [ ] Buka **3 terminal**:
-  - Terminal 1 → `python grpc_ticketing/middleware_server.py`
-  - Terminal 2 → `python grpc_ticketing/native_server.py` (jalankan dari root repo)
-  - Terminal 3 → untuk client, di direktori `grpc_ticketing/`
+  - Terminal 1 → `cd custom_addons/grpc_ticketing && python middleware_server.py`
+  - Terminal 2 → `python custom_addons/grpc_ticketing/native_server.py` (jalankan dari root repo)
+  - Terminal 3 → untuk client, di direktori `custom_addons/grpc_ticketing/`
 - [ ] Buka browser Odoo di tab lain (untuk verifikasi tiket masuk ke database).
 
 ---

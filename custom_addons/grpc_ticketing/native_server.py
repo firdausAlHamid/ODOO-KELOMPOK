@@ -46,7 +46,7 @@ import ticket_pb2_grpc
 # =============================================
 # Konfigurasi
 # =============================================
-ODOO_CONF   = os.path.join(os.path.dirname(__file__), "..", "odoo.conf")
+ODOO_CONF   = os.path.join(os.path.dirname(__file__), "..", "..", "odoo.conf")
 ODOO_DB     = "odoo19"
 GRPC_PORT   = 50052   # berbeda dari middleware (50051) agar bisa jalan bareng
 
