@@ -58,7 +58,8 @@
 
 *(buka terminal, jalankan middleware server)*
 
-```
+```bash
+cd E:\ODOO-KELOMPOK\custom_addons\grpc_ticketing
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe middleware_server.py
 ```
 
@@ -70,11 +71,13 @@ E:\ODOO-KELOMPOK\venv\Scripts\python.exe middleware_server.py
 >
 > Jadi kayak ada 'orang tengah' yang nerjemahin request gRPC ke bahasa yang dimengerti Odoo.
 >
-> Lihat di log — server berhasil konek ke Odoo dan siap menerima request di port 50051."
+> Nah liat di terminal — muncul tulisan 'Berhasil login Odoo sebagai uid=2'
+> dan 'Middleware gRPC server berjalan di port 50051'.
+> Itu tandanya server middleware udah aktif dan siap nerima request."
 
 *(buka terminal lain, jalankan client ke middleware)*
 
-```
+```bash
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --target localhost:50051
 ```
 
@@ -101,7 +104,8 @@ E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --target localhost:50051
 
 *(buka terminal baru, jalankan native server dari root repo)*
 
-```
+```bash
+cd E:\ODOO-KELOMPOK
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe custom_addons/grpc_ticketing/native_server.py
 ```
 
@@ -113,11 +117,14 @@ E:\ODOO-KELOMPOK\venv\Scripts\python.exe custom_addons/grpc_ticketing/native_ser
 > Dia baca file konfigurasi Odoo, lalu akses database secara langsung
 > lewat yang namanya ORM — Object Relational Mapper, cara Odoo ngobrol sama database.
 >
-> Jadi lebih langsung, lebih efisien, karena gak ada 'orang tengah' lagi."
+> Jadi lebih langsung, lebih efisien, karena gak ada 'orang tengah' lagi.
+>
+> Di terminal kelihatan tulisan 'Bootstrap OK' dan 'Native gRPC server berjalan di port 50052' —
+> server udah aktif."
 
 *(jalankan client ke native server)*
 
-```
+```bash
 E:\ODOO-KELOMPOK\venv\Scripts\python.exe client.py --target localhost:50052
 ```
 
