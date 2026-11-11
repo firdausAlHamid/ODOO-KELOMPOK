@@ -120,41 +120,106 @@ def create_ticket(stub, title, category_id=0, location="Gedung A - Lantai 2",
         return None
 
 
-# =============================================
-# Demo penuh (urutan khas untuk video)
-# =============================================
+def update_ticket(stub, ticket_id, action, assigned_to=0):
+    _logger.info("==> RPC UpdateTicket id=%s action=%s", ticket_id, action)
+    req = ticket_pb2.UpdateTicketRequest(
+        id=ticket_id,
+        action=action,
+        assigned_to=assigned_to,
+    )
+    try:
+        resp = stub.UpdateTicket(req)
+        print("\n=== UPDATE TIKET ===")
+        print(f"  Success    : {resp.success}")
+        print(f"  Message    : {resp.message}")
+        print(f"  State Baru : {resp.new_state}\n")
+        return resp
+    except grpc.RpcError as e:
+        _logger.error("UpdateTicket gagal: %s (%s)", e.code(), e.details())
+        return None
+
+
+def delete_ticket(stub, ticket_id):
+    _logger.info("==> RPC DeleteTicket id=%s", ticket_id)
+    try:
+        resp = stub.DeleteTicket(ticket_pb2.DeleteTicketRequest(id=ticket_id))
+        print("\n=== DELETE TIKET ===")
+        print(f"  Success : {resp.success}")
+        print(f"  Message : {resp.message}\n")
+        return resp
+    except grpc.RpcError as e:
+        _logger.error("DeleteTicket gagal: %s (%s)", e.code(), e.details())
+        return None
+
+
+
 def demo_full(stub, target):
     print("\n" + "=" * 60)
-    print(f"  DEMO gRPC Client  ->  {target}")
+    print(f"  DEMO gRPC CRUD Client  ->  {target}")
     print("=" * 60)
 
-    # 1. List kategori (READ)
+    # 1. READ — List kategori
     cats = list_categories(stub)
     cat_id = cats.categories[0].id if cats.categories else 0
 
-    # 2. List tiket existing (READ)
+    # 2. READ — List tiket existing
     list_tickets(stub)
 
-    # 3. Buat tiket baru (CREATE)
-    new_title = f"[gRPC Demo] Tiket uji dari {target}"
+    # 3. CREATE — bikin tiket baru
+    # NOTE: ubah nilai variabel di bawah ini untuk ganti data tiket demo
+    new_title    = f"[gRPC Demo] Tiket uji dari {target}"
+    new_category = cat_id
+    new_location = "Lab Komputer - Ruang 207"
+    new_priority = "3"
+    new_desc     = "<p>Tiket ini dibuat dari gRPC client untuk keperluan demo.</p>"
+
+    print(f"\n[INFO] Membuat tiket baru: lokasi={new_location}")
     new_resp = create_ticket(
         stub,
         title=new_title,
-        category_id=cat_id,
-        location="Lab Komputer - Ruang 204",
-        priority="2",
-        description="<p>Tiket ini dibuat dari gRPC client untuk keperluan demo.</p>",
+        category_id=new_category,
+        location=new_location,
+        priority=new_priority,
+        description=new_desc,
     )
 
-    # 4. Ambil tiket yang baru dibuat (READ konfirmasi)
+    # 4. READ konfirmasi — ambil tiket yang baru dibuat
     if new_resp and new_resp.ticket_id:
         get_ticket(stub, new_resp.ticket_id)
 
-    # 5. List tiket setelah create (READ)
+        # 5. UPDATE — submit tiket (draft -> submitted)
+        update_ticket(stub, new_resp.ticket_id, "submit")
+
+        # 6. UPDATE — proses tiket (submitted -> in_progress), butuh PIC
+        #    pakai employee id=1 (Administrator) sebagai PIC
+        update_ticket(stub, new_resp.ticket_id, "in_progress", assigned_to=1)
+
+        # 7. UPDATE — selesai (in_progress -> resolved)
+        update_ticket(stub, new_resp.ticket_id, "resolve")
+
+        # 8. READ — lihat tiket setelah semua update status
+        print("\n[INFO] Tiket setelah seluruh update status:")
+        get_ticket(stub, new_resp.ticket_id)
+
+        # 9. DELETE — demo hapus tiket
+        # Bikin tiket baru lagi lalu hapus (karena tiket resolved tidak bisa hapus)
+        print("\n[INFO] Membuat tiket kedua untuk demo DELETE:")
+        del_resp = create_ticket(
+            stub,
+            title=f"[gRPC Demo DELETE] Tiket hapus dari {target}",
+            category_id=new_category,
+            location="Ruang Demo Hapus",
+            priority="0",
+            description="<p>Tiket ini akan dihapus untuk demo DELETE.</p>",
+        )
+        if del_resp and del_resp.ticket_id:
+            delete_ticket(stub, del_resp.ticket_id)
+
+    # 10. READ final — list tiket setelah semua operasi
     list_tickets(stub)
 
     print("=" * 60)
-    print("  DEMO SELESAI")
+    print("  DEMO CRUD SELESAI: Create, Read, Update, Delete")
     print("=" * 60 + "\n")
 
 
@@ -175,6 +240,10 @@ def main():
     parser.add_argument("--create", nargs="+", metavar="TITLE",
                         help="Buat tiket baru (title wajib). "
                              "Opsional: category_id location priority")
+    parser.add_argument("--update", nargs=2, metavar=("ID", "ACTION"),
+                        help="Update status tiket: ID action (submit|in_progress|resolve|cancel|reset)")
+    parser.add_argument("--delete", type=int, metavar="ID",
+                        help="Hapus tiket by ID (hanya draft/cancelled)")
     args = parser.parse_args()
 
     channel, stub = _connect(args.target)
@@ -194,6 +263,10 @@ def main():
             priority = args.create[3] if len(args.create) > 3 else "1"
             create_ticket(stub, title, category_id=cat_id,
                           location=location, priority=priority)
+        elif args.update:
+            update_ticket(stub, int(args.update[0]), args.update[1])
+        elif args.delete is not None:
+            delete_ticket(stub, args.delete)
         else:
             demo_full(stub, args.target)
     finally:

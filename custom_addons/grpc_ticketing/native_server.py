@@ -216,6 +216,92 @@ class TicketingNativeServicer(ticket_pb2_grpc.TicketServiceServicer):
         finally:
             cr.close()
 
+    # ---------- UPDATE: ganti status tiket ----------
+    def UpdateTicket(self, request, context):
+        _logger.info("UpdateTicket id=%s action=%s", request.id, request.action)
+        _ACTION_MAP = {
+            "submit":      "action_submit",
+            "in_progress": "action_in_progress",
+            "resolve":     "action_resolve",
+            "cancel":      "action_cancel",
+            "reset":       "action_reset_draft",
+        }
+        method = _ACTION_MAP.get(request.action)
+        if not method:
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details(
+                f"Action '{request.action}' tidak valid. "
+                "Pilihan: submit | in_progress | resolve | cancel | reset"
+            )
+            return ticket_pb2.UpdateTicketResponse(success=False, message="action tidak valid")
+
+        cr, env = _get_env()
+        try:
+            ticket = env["bureaucracy.ticket"].browse(request.id)
+            if not ticket.exists():
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details(f"Tiket id={request.id} tidak ditemukan.")
+                return ticket_pb2.UpdateTicketResponse(success=False, message="Tiket tidak ditemukan")
+
+            # Kalau in_progress, set assigned_to dulu
+            if request.action == "in_progress" and request.assigned_to:
+                ticket.assigned_to = request.assigned_to
+
+            # Panggil method workflow Odoo langsung (keunggulan Native ORM)
+            getattr(ticket, method)()
+            cr.commit()
+
+            _logger.info("Tiket id=%s state baru: %s", ticket.id, ticket.state)
+            return ticket_pb2.UpdateTicketResponse(
+                success=True,
+                message=f"Tiket berhasil diupdate via Native ORM. Action: {request.action}",
+                new_state=ticket.state,
+            )
+        except Exception as e:
+            cr.rollback()
+            _logger.exception("UpdateTicket ERROR: %s", e)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return ticket_pb2.UpdateTicketResponse(success=False, message=f"Error: {e}")
+        finally:
+            cr.close()
+
+    # ---------- DELETE: hapus tiket ----------
+    def DeleteTicket(self, request, context):
+        _logger.info("DeleteTicket id=%s", request.id)
+        cr, env = _get_env()
+        try:
+            ticket = env["bureaucracy.ticket"].browse(request.id)
+            if not ticket.exists():
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details(f"Tiket id={request.id} tidak ditemukan.")
+                return ticket_pb2.DeleteTicketResponse(success=False, message="Tiket tidak ditemukan")
+
+            ticket_name = ticket.name
+            state = ticket.state
+            if state not in ("draft", "cancelled"):
+                return ticket_pb2.DeleteTicketResponse(
+                    success=False,
+                    message=f"Tidak bisa hapus tiket {ticket_name} dengan status '{state}'. "
+                            "Hanya tiket berstatus draft/cancelled yang bisa dihapus.",
+                )
+
+            ticket.unlink()
+            cr.commit()
+            _logger.info("Tiket %s berhasil dihapus", ticket_name)
+            return ticket_pb2.DeleteTicketResponse(
+                success=True,
+                message=f"Tiket {ticket_name} berhasil dihapus via Native ORM",
+            )
+        except Exception as e:
+            cr.rollback()
+            _logger.exception("DeleteTicket ERROR: %s", e)
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return ticket_pb2.DeleteTicketResponse(success=False, message=f"Error: {e}")
+        finally:
+            cr.close()
+
 
 # =============================================
 # Main

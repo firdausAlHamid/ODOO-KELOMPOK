@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cticket.proto\x12\tticketing\"\x87\x01\n\x13\x43reateTicketRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x13\n\x0b\x63\x61tegory_id\x18\x03 \x01(\x05\x12\x10\n\x08location\x18\x04 \x01(\t\x12\x10\n\x08priority\x18\x05 \x01(\t\x12\x13\n\x0b\x65mployee_id\x18\x06 \x01(\x05\"`\n\x14\x43reateTicketResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\tticket_id\x18\x03 \x01(\x05\x12\x13\n\x0bticket_name\x18\x04 \x01(\t\"\x1e\n\x10GetTicketRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"B\n\x12ListTicketsRequest\x12\r\n\x05state\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\x12\x0e\n\x06offset\x18\x03 \x01(\x05\"\x86\x02\n\nTicketData\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\x10\n\x08location\x18\x05 \x01(\t\x12\x10\n\x08priority\x18\x06 \x01(\t\x12\x16\n\x0epriority_label\x18\x07 \x01(\t\x12\r\n\x05state\x18\x08 \x01(\t\x12\x13\n\x0bstate_label\x18\t \x01(\t\x12\x15\n\rcategory_name\x18\n \x01(\t\x12\x15\n\remployee_name\x18\x0b \x01(\t\x12\x17\n\x0f\x64\x65partment_name\x18\x0c \x01(\t\x12\x13\n\x0breport_date\x18\r \x01(\t\"L\n\x13ListTicketsResponse\x12&\n\x07tickets\x18\x01 \x03(\x0b\x32\x15.ticketing.TicketData\x12\r\n\x05total\x18\x02 \x01(\x05\"\x17\n\x15ListCategoriesRequest\"a\n\x0c\x43\x61tegoryData\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ode\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\x14\n\x0cticket_count\x18\x05 \x01(\x05\"E\n\x16ListCategoriesResponse\x12+\n\ncategories\x18\x01 \x03(\x0b\x32\x17.ticketing.CategoryData2\xc6\x02\n\rTicketService\x12O\n\x0c\x43reateTicket\x12\x1e.ticketing.CreateTicketRequest\x1a\x1f.ticketing.CreateTicketResponse\x12?\n\tGetTicket\x12\x1b.ticketing.GetTicketRequest\x1a\x15.ticketing.TicketData\x12L\n\x0bListTickets\x12\x1d.ticketing.ListTicketsRequest\x1a\x1e.ticketing.ListTicketsResponse\x12U\n\x0eListCategories\x12 .ticketing.ListCategoriesRequest\x1a!.ticketing.ListCategoriesResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cticket.proto\x12\tticketing\"\x87\x01\n\x13\x43reateTicketRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x13\n\x0b\x63\x61tegory_id\x18\x03 \x01(\x05\x12\x10\n\x08location\x18\x04 \x01(\t\x12\x10\n\x08priority\x18\x05 \x01(\t\x12\x13\n\x0b\x65mployee_id\x18\x06 \x01(\x05\"`\n\x14\x43reateTicketResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\tticket_id\x18\x03 \x01(\x05\x12\x13\n\x0bticket_name\x18\x04 \x01(\t\"\x1e\n\x10GetTicketRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"B\n\x12ListTicketsRequest\x12\r\n\x05state\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\x12\x0e\n\x06offset\x18\x03 \x01(\x05\"\x86\x02\n\nTicketData\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\x10\n\x08location\x18\x05 \x01(\t\x12\x10\n\x08priority\x18\x06 \x01(\t\x12\x16\n\x0epriority_label\x18\x07 \x01(\t\x12\r\n\x05state\x18\x08 \x01(\t\x12\x13\n\x0bstate_label\x18\t \x01(\t\x12\x15\n\rcategory_name\x18\n \x01(\t\x12\x15\n\remployee_name\x18\x0b \x01(\t\x12\x17\n\x0f\x64\x65partment_name\x18\x0c \x01(\t\x12\x13\n\x0breport_date\x18\r \x01(\t\"L\n\x13ListTicketsResponse\x12&\n\x07tickets\x18\x01 \x03(\x0b\x32\x15.ticketing.TicketData\x12\r\n\x05total\x18\x02 \x01(\x05\"F\n\x13UpdateTicketRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0e\n\x06\x61\x63tion\x18\x02 \x01(\t\x12\x13\n\x0b\x61ssigned_to\x18\x03 \x01(\x05\"K\n\x14UpdateTicketResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\tnew_state\x18\x03 \x01(\t\"!\n\x13\x44\x65leteTicketRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"8\n\x14\x44\x65leteTicketResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x17\n\x15ListCategoriesRequest\"a\n\x0c\x43\x61tegoryData\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x63ode\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\x14\n\x0cticket_count\x18\x05 \x01(\x05\"E\n\x16ListCategoriesResponse\x12+\n\ncategories\x18\x01 \x03(\x0b\x32\x17.ticketing.CategoryData2\xe8\x03\n\rTicketService\x12O\n\x0c\x43reateTicket\x12\x1e.ticketing.CreateTicketRequest\x1a\x1f.ticketing.CreateTicketResponse\x12?\n\tGetTicket\x12\x1b.ticketing.GetTicketRequest\x1a\x15.ticketing.TicketData\x12L\n\x0bListTickets\x12\x1d.ticketing.ListTicketsRequest\x1a\x1e.ticketing.ListTicketsResponse\x12O\n\x0cUpdateTicket\x12\x1e.ticketing.UpdateTicketRequest\x1a\x1f.ticketing.UpdateTicketResponse\x12O\n\x0c\x44\x65leteTicket\x12\x1e.ticketing.DeleteTicketRequest\x1a\x1f.ticketing.DeleteTicketResponse\x12U\n\x0eListCategories\x12 .ticketing.ListCategoriesRequest\x1a!.ticketing.ListCategoriesResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -43,12 +43,20 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_TICKETDATA']._serialized_end=626
   _globals['_LISTTICKETSRESPONSE']._serialized_start=628
   _globals['_LISTTICKETSRESPONSE']._serialized_end=704
-  _globals['_LISTCATEGORIESREQUEST']._serialized_start=706
-  _globals['_LISTCATEGORIESREQUEST']._serialized_end=729
-  _globals['_CATEGORYDATA']._serialized_start=731
-  _globals['_CATEGORYDATA']._serialized_end=828
-  _globals['_LISTCATEGORIESRESPONSE']._serialized_start=830
-  _globals['_LISTCATEGORIESRESPONSE']._serialized_end=899
-  _globals['_TICKETSERVICE']._serialized_start=902
-  _globals['_TICKETSERVICE']._serialized_end=1228
+  _globals['_UPDATETICKETREQUEST']._serialized_start=706
+  _globals['_UPDATETICKETREQUEST']._serialized_end=776
+  _globals['_UPDATETICKETRESPONSE']._serialized_start=778
+  _globals['_UPDATETICKETRESPONSE']._serialized_end=853
+  _globals['_DELETETICKETREQUEST']._serialized_start=855
+  _globals['_DELETETICKETREQUEST']._serialized_end=888
+  _globals['_DELETETICKETRESPONSE']._serialized_start=890
+  _globals['_DELETETICKETRESPONSE']._serialized_end=946
+  _globals['_LISTCATEGORIESREQUEST']._serialized_start=948
+  _globals['_LISTCATEGORIESREQUEST']._serialized_end=971
+  _globals['_CATEGORYDATA']._serialized_start=973
+  _globals['_CATEGORYDATA']._serialized_end=1070
+  _globals['_LISTCATEGORIESRESPONSE']._serialized_start=1072
+  _globals['_LISTCATEGORIESRESPONSE']._serialized_end=1141
+  _globals['_TICKETSERVICE']._serialized_start=1144
+  _globals['_TICKETSERVICE']._serialized_end=1632
 # @@protoc_insertion_point(module_scope)

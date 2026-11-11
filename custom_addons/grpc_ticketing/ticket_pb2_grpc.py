@@ -53,6 +53,16 @@ class TicketServiceStub:
                 request_serializer=ticket__pb2.ListTicketsRequest.SerializeToString,
                 response_deserializer=ticket__pb2.ListTicketsResponse.FromString,
                 _registered_method=True)
+        self.UpdateTicket = channel.unary_unary(
+                '/ticketing.TicketService/UpdateTicket',
+                request_serializer=ticket__pb2.UpdateTicketRequest.SerializeToString,
+                response_deserializer=ticket__pb2.UpdateTicketResponse.FromString,
+                _registered_method=True)
+        self.DeleteTicket = channel.unary_unary(
+                '/ticketing.TicketService/DeleteTicket',
+                request_serializer=ticket__pb2.DeleteTicketRequest.SerializeToString,
+                response_deserializer=ticket__pb2.DeleteTicketResponse.FromString,
+                _registered_method=True)
         self.ListCategories = channel.unary_unary(
                 '/ticketing.TicketService/ListCategories',
                 request_serializer=ticket__pb2.ListCategoriesRequest.SerializeToString,
@@ -68,28 +78,42 @@ class TicketServiceServicer:
     """
 
     def CreateTicket(self, request, context):
-        """Buat tiket baru (CREATE / POST)
+        """Buat tiket baru (CREATE)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetTicket(self, request, context):
-        """Ambil satu tiket (READ / GET)
+        """Ambil satu tiket by ID (READ)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def ListTickets(self, request, context):
-        """Ambil daftar tiket (READ / GET)
+        """Ambil daftar tiket (READ)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateTicket(self, request, context):
+        """Update status tiket — submit, proses, selesai, batal (UPDATE)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteTicket(self, request, context):
+        """Hapus tiket (DELETE — hanya untuk state draft/cancelled)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def ListCategories(self, request, context):
-        """Ambil daftar kategori (READ / GET)
+        """Ambil daftar kategori (READ)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -112,6 +136,16 @@ def add_TicketServiceServicer_to_server(servicer, server):
                     servicer.ListTickets,
                     request_deserializer=ticket__pb2.ListTicketsRequest.FromString,
                     response_serializer=ticket__pb2.ListTicketsResponse.SerializeToString,
+            ),
+            'UpdateTicket': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateTicket,
+                    request_deserializer=ticket__pb2.UpdateTicketRequest.FromString,
+                    response_serializer=ticket__pb2.UpdateTicketResponse.SerializeToString,
+            ),
+            'DeleteTicket': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteTicket,
+                    request_deserializer=ticket__pb2.DeleteTicketRequest.FromString,
+                    response_serializer=ticket__pb2.DeleteTicketResponse.SerializeToString,
             ),
             'ListCategories': grpc.unary_unary_rpc_method_handler(
                     servicer.ListCategories,
@@ -204,6 +238,60 @@ class TicketService:
             '/ticketing.TicketService/ListTickets',
             ticket__pb2.ListTicketsRequest.SerializeToString,
             ticket__pb2.ListTicketsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateTicket(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/ticketing.TicketService/UpdateTicket',
+            ticket__pb2.UpdateTicketRequest.SerializeToString,
+            ticket__pb2.UpdateTicketResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteTicket(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/ticketing.TicketService/DeleteTicket',
+            ticket__pb2.DeleteTicketRequest.SerializeToString,
+            ticket__pb2.DeleteTicketResponse.FromString,
             options,
             channel_credentials,
             insecure,

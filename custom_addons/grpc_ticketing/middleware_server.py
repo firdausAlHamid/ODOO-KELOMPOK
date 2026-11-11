@@ -252,6 +252,94 @@ class TicketingMiddlewareServicer(ticket_pb2_grpc.TicketServiceServicer):
             context.set_details(str(e))
             return ticket_pb2.ListCategoriesResponse()
 
+    # ---------- UPDATE: ganti status tiket ----------
+    def UpdateTicket(self, request, context):
+        _logger.info("UpdateTicket id=%s action=%s", request.id, request.action)
+        # Map action string -> nama method Odoo
+        _ACTION_MAP = {
+            "submit":      "action_submit",
+            "in_progress": "action_in_progress",
+            "resolve":     "action_resolve",
+            "cancel":      "action_cancel",
+            "reset":       "action_reset_draft",
+        }
+        method = _ACTION_MAP.get(request.action)
+        if not method:
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details(
+                f"Action '{request.action}' tidak valid. "
+                "Pilihan: submit | in_progress | resolve | cancel | reset"
+            )
+            return ticket_pb2.UpdateTicketResponse(success=False, message="action tidak valid")
+        try:
+            # Kalau in_progress, set assigned_to dulu
+            if request.action == "in_progress" and request.assigned_to:
+                _object().execute_kw(
+                    ODOO_DB, self.uid, ODOO_PASS,
+                    MODEL_TICKET, "write",
+                    [[request.id], {"assigned_to": request.assigned_to}],
+                )
+            # Panggil method workflow
+            _object().execute_kw(
+                ODOO_DB, self.uid, ODOO_PASS,
+                MODEL_TICKET, method, [[request.id]],
+            )
+            # Baca state terbaru
+            rec = _object().execute_kw(
+                ODOO_DB, self.uid, ODOO_PASS,
+                MODEL_TICKET, "read", [[request.id], ["state"]],
+            )
+            new_state = rec[0]["state"] if rec else "unknown"
+            _logger.info("Tiket id=%s state baru: %s", request.id, new_state)
+            return ticket_pb2.UpdateTicketResponse(
+                success=True,
+                message=f"Tiket berhasil diupdate via Middleware (XML-RPC). Action: {request.action}",
+                new_state=new_state,
+            )
+        except Exception as e:
+            _logger.exception("UpdateTicket gagal")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return ticket_pb2.UpdateTicketResponse(success=False, message=f"Error: {e}")
+
+    # ---------- DELETE: hapus tiket ----------
+    def DeleteTicket(self, request, context):
+        _logger.info("DeleteTicket id=%s", request.id)
+        try:
+            # Cek dulu tiket ada
+            recs = _object().execute_kw(
+                ODOO_DB, self.uid, ODOO_PASS,
+                MODEL_TICKET, "read", [[request.id], ["id", "name", "state"]],
+            )
+            if not recs:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details(f"Tiket id={request.id} tidak ditemukan.")
+                return ticket_pb2.DeleteTicketResponse(success=False, message="Tiket tidak ditemukan")
+
+            ticket_name = recs[0]["name"]
+            state = recs[0]["state"]
+            if state not in ("draft", "cancelled"):
+                return ticket_pb2.DeleteTicketResponse(
+                    success=False,
+                    message=f"Tidak bisa hapus tiket {ticket_name} dengan status '{state}'. "
+                            "Hanya tiket berstatus draft/cancelled yang bisa dihapus.",
+                )
+
+            _object().execute_kw(
+                ODOO_DB, self.uid, ODOO_PASS,
+                MODEL_TICKET, "unlink", [[request.id]],
+            )
+            _logger.info("Tiket %s berhasil dihapus", ticket_name)
+            return ticket_pb2.DeleteTicketResponse(
+                success=True,
+                message=f"Tiket {ticket_name} berhasil dihapus via Middleware (XML-RPC)",
+            )
+        except Exception as e:
+            _logger.exception("DeleteTicket gagal")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return ticket_pb2.DeleteTicketResponse(success=False, message=f"Error: {e}")
+
 
 # =============================================
 # Main

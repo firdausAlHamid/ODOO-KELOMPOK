@@ -59,6 +59,33 @@ message ListTicketsResponse {
   int32               total   = 2;
 }
 
+// Request update status tiket
+message UpdateTicketRequest {
+  int32  id          = 1;  // ID tiket yang mau diupdate
+  string action      = 2;  // "submit" | "in_progress" | "resolve" | "cancel" | "reset"
+  int32  assigned_to = 3;  // ID employee PIC (wajib untuk action "in_progress")
+}
+
+// Response update
+message UpdateTicketResponse {
+  bool   success    = 1;
+  string message    = 2;
+  string new_state  = 3;  // state baru setelah update
+}
+
+// Request delete tiket
+message DeleteTicketRequest {
+  int32 id = 1;
+}
+
+// Response delete
+message DeleteTicketResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+
+
 // Request daftar kategori
 message ListCategoriesRequest {}
 
@@ -81,15 +108,21 @@ message ListCategoriesResponse {
 // =============================================
 
 service TicketService {
-  // Buat tiket baru (CREATE / POST)
+  // Buat tiket baru (CREATE)
   rpc CreateTicket (CreateTicketRequest)   returns (CreateTicketResponse);
 
-  // Ambil satu tiket (READ / GET)
+  // Ambil satu tiket by ID (READ)
   rpc GetTicket    (GetTicketRequest)      returns (TicketData);
 
-  // Ambil daftar tiket (READ / GET)
+  // Ambil daftar tiket (READ)
   rpc ListTickets  (ListTicketsRequest)    returns (ListTicketsResponse);
 
-  // Ambil daftar kategori (READ / GET)
+  // Update status tiket — submit, proses, selesai, batal (UPDATE)
+  rpc UpdateTicket (UpdateTicketRequest)   returns (UpdateTicketResponse);
+
+  // Hapus tiket (DELETE — hanya untuk state draft/cancelled)
+  rpc DeleteTicket (DeleteTicketRequest)   returns (DeleteTicketResponse);
+
+  // Ambil daftar kategori (READ)
   rpc ListCategories (ListCategoriesRequest) returns (ListCategoriesResponse);
 }
