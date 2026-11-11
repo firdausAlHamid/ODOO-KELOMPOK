@@ -136,11 +136,11 @@ class TicketingMiddlewareServicer(ticket_pb2_grpc.TicketServiceServicer):
                 "description": request.description,
                 "location":    request.location,
                 "priority":    request.priority or "1",
+                # employee_id wajib — default ke id=1 kalau client tidak kirim
+                "employee_id": request.employee_id if request.employee_id else 1,
             }
             if request.category_id:
                 vals["category_id"] = request.category_id
-            if request.employee_id:
-                vals["employee_id"] = request.employee_id
 
             new_id = _object().execute_kw(
                 ODOO_DB, self.uid, ODOO_PASS,

@@ -131,11 +131,12 @@ class TicketingNativeServicer(ticket_pb2_grpc.TicketServiceServicer):
                 "description": request.description or "",
                 "location":    request.location or "Tidak disebutkan",
                 "priority":    request.priority or "1",
+                # employee_id wajib — default ke employee id=1 (Administrator)
+                # kalau client kirim employee_id spesifik, pakai itu
+                "employee_id": request.employee_id if request.employee_id else 1,
             }
             if request.category_id:
                 vals["category_id"] = request.category_id
-            if request.employee_id:
-                vals["employee_id"] = request.employee_id
 
             ticket = env["bureaucracy.ticket"].create(vals)
             cr.commit()
